@@ -1,0 +1,10 @@
+function singleSelectChangeText() {
+        //Getting Value
+        
+
+        var selObj = document.getElementById("singleSelectTextDDJS");
+        var selValue = selObj.options[selObj.selectedIndex].text;
+        
+        //Setting Value
+        document.getElementById("textFieldTextJS").value = selValue;
+    }

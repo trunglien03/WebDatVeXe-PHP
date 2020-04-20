@@ -1,0 +1,48 @@
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js" type="text/javascript"></script>
+<script language="javascript">
+    function validateSelectBox(obj){
+        var options = obj.children;
+        var html = '';
+        for (var i = 0; i < options.length; i++){
+            if (options[i].selected){
+                html += '<li>'+options[i].value+'</li>';
+            }
+        }
+        document.getElementById('result').innerHTML = html;
+    }
+</script>
+<script>
+$(document).ready(function(){
+    $('#loaixe').on('change', function(){
+        var id_loaixe = $(this).val();
+        if(id_loaixe){
+            $.ajax({
+                type:'POST',
+                url:'ajax_laygio.php',
+                data:'id_loaixe='+id_loaixe,
+                success:function(html){
+                    $('#gio').html(html);
+                    
+                }
+            }); 
+        }else{
+            $('#gio').html('<option value="">Chọn loại xe trước</option>');
+            
+        }
+    });
+    
+    $('#gio').on('change', function(){
+        var id_lich = $(this).val();
+        if(id_lich){
+            $.ajax({
+                type:'POST',
+                url:'ajax_laygio.php',
+                data:'id_lich='+id_lich,
+                success:function(data){
+                    $('#tien').val(data);
+                }
+            }); 
+        }
+    });
+});
+</script>

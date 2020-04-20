@@ -1,0 +1,615 @@
+<?php
+    session_start();
+    error_reporting(0);
+?>
+
+<?php
+    include("includes/header.php");
+    include("includes/modal.php");
+    include("includes/connect.php");
+    if(isset($_POST['buy'])){
+        if($_POST['bookingform']==NULL && $_POST['fromLoc']=='' && $_POST['toLoc']=='' && $_POST['loaixe']==''){
+            echo '<script language="javascript">';
+            echo 'alert("Vui lòng điền đầy đủ thông tin");window.history.back()';
+            echo '</script>';
+        }
+        else{
+            $bookingform=$_POST['bookingform'];
+        }
+        if($_POST['colorCheckbox']=='red'){
+            if($_POST['noidi']!='' && $_POST['noiden']!='' && $_POST['loaixe']!='' && $_POST['return_date']!=NULL && $_POST['ticket_number']!=''){
+                $fromLoc=$_POST['noidi'];
+                $toLoc=$_POST['noiden'];
+                $dep_date=$_POST['Calenderfrom'];
+                $ticket_number=$_POST['ticket_number'];
+    
+                $sql1=mysqli_query($conn,"SELECT ten_noidi FROM noidi WHERE id_noidi='$fromLoc'");
+                while($row1=mysqli_fetch_array($sql1)){
+                    $ten_noidi=$row1['ten_noidi'];
+                }
+    
+                $sql2=mysqli_query($conn, "SELECT ten_noiden FROM noiden WHERE id_noiden='$toLoc'");
+                while($row2=mysqli_fetch_array($sql2)){
+                    $ten_noiden=$row2['ten_noiden'];
+                }
+            }
+        }
+        elseif($_POST['colorCheckbox']=='green'){
+            if($_POST['fromLoc']!='' && $_POST['toLoc']!='' && $_POST['loai_xe']!='' && $_POST['sove']!='' && $_POST['ngaydi']!=NULL && $_POST['ngayve']!=NULL){
+                $fromLoc=$_POST['fromLoc'];
+                $toLoc=$_POST['toLoc'];
+                $dep_date=$_POST['ngaydi'];
+                $re_date=$_POST['ngayve'];
+                $ticket_number=$_POST['sove'];
+    
+                $sql1=mysqli_query($conn,"SELECT ten_noidi FROM noidi WHERE id_noidi='$fromLoc'");
+                while($row1=mysqli_fetch_array($sql1)){
+                    $ten_noidi=$row1['ten_noidi'];
+                }
+    
+                $sql2=mysqli_query($conn, "SELECT ten_noiden FROM noiden WHERE id_noiden='$toLoc'");
+                while($row2=mysqli_fetch_array($sql2)){
+                    $ten_noiden=$row2['ten_noiden'];
+                }
+            } 
+        }
+        
+    }
+?>
+
+<div class="row" ng-controller="search" style="margin-top: 20px;">
+    <input type="button" value="fsd" id="rating" ng-click="rating()" style="display:none;" >
+    <div id="container" ng-init="getTripdetails()">
+        <div class="col-md-12">
+            <ul class="tabs">
+                <li class="tab-link current" data-tab="tab-1" data-id="d">CHỌN TUYẾN</li>
+                <li class="tab-link" data-tab="tab-2" data-id="d">CHỌN GHẾ</li>
+                <li class="tab-link" data-tab="tab-3" data-id="d">THÔNG TIN KHÁCH HÀNG</li>
+                <li class="tab-link" data-tab="tab-4c" data-id="d">THANH TOÁN</li>        
+            </ul>
+            <div id="tab-1" class="tab-content current" data-id="paytm">            
+                <div class="tb_route_inner_txt" ng-show="tripDetails.length!='0'" ng-repeat="trips in tripDetails"> 
+                    <div class="container" ng-controller="search">
+                        <div class="row" style="margin-top: -20px; margin-left: -70px;">
+                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 col-ms-12">
+                                <form id="myForm" method="post" >
+                                    <section id="Search" class="LB XXCN  P20" style="width:105%;">
+                                        <div id="ticket">
+                                            <div id="ticketform">
+                                                <div class="searchRow clearfix">
+                                                    <!--FORM MỘT CHIỀU-->
+                                                    <div class="form-a">
+                                                    <p class="text-center text-primary text-uppercase" style="color: #ef5222; font-size: 15px; font-weight: 550; padding-top: 10px;">TUYẾN: <?php echo $ten_noidi; echo "-"; echo $ten_noiden?>
+                                                        <?php echo $dep_date;?>
+                                                    </p>
+                                                    <!--Hiển thị loại xe-->
+                                                    <div class="row">
+                                                        <div class="col col-md-12">
+                                                            <div class="LB">
+                                                                <label class="inputLabel" style="font-size: 15px; margin-top: 10px;"><i class="fa fa-bus text-primary"></i><strong>&nbsp; &nbsp;Loại xe:</strong><span class="text-primary" style="color:red"> *</span></label>
+                                                                <select class="sala" name="loaixe" id="loaixe">
+                                                                <?php
+                                                                    $get_ten_loaixe = mysqli_query($conn, "SELECT * FROM loai_xe INNER JOIN lich_chay ON loai_xe.id_loaixe=lich_chay.id_loaixe WHERE lich_chay.fromLoc = '$ten_noidi' and lich_chay.toLoc = '$ten_noiden' and lich_chay.conlai !=0");
+                                                                    if(mysqli_num_rows($get_ten_loaixe)==0){
+                                                                        echo '<script language="javascript">';
+					                                                    echo 'alert("Tuyến đường này chưa mở đặt vé trực tuyến! Xin Anh/Chị thông cảm cho sự bất tiện này");window.history.back()';
+					                                                    echo '</script>';
+                                                                    }
+                                                                    else{
+                                                                        while($row4 = mysqli_fetch_array($get_ten_loaixe)){
+                                                                            $id_loaixe = $row4['id_loaixe'];
+                                                                    
+                                                                ?>
+                                                                    <option value="<?=$id_loaixe?>"><?=$row4['ten_loaixe'];}}?></option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                <!--End-->
+                                                
+                                                    <!--Hiển thị thông tin nơi đến-->
+                                                    <div class="row">
+                                                        <div class="col col-md-12">    
+                                                            <div class="LB">
+                                                                <label class="inputLabel" style="font-size: 15px; padding-top: 5px;"><i class="fa fa-clock-o text-primary"></i><strong>&nbsp;&nbsp;Chọn giờ khởi hành:</strong><span class="text-primary" style="color:red"> *</span></label>
+                                                                    <select name="gio" id="gio" class="sala" onchange="giodachon()" required>
+                                                                    <option value=''>--Chọn loại xe trước--</option>
+                                                                    </select>
+                                                            </div>
+                                                        </div>
+                                                    </div> 
+                                                    <!--End--> 
+
+                                                    <!--Hiển thị thông tin nơi đến-->
+                                                    <div class="row">
+                                                        <div class="col col-md-12">    
+                                                            <div class="LB">
+                                                                <label class="inputLabel" style="font-size: 15px; padding-top: 5px;"><i class="fa fa-clock-o text-primary"></i><strong>&nbsp;&nbsp;Giá vé:</strong><span class="text-primary" style="color:red"> *</span></label>
+                                                                <input class="sala" id="tien" name="tien" type="text"/>
+                                                            </div>
+                                                        </div>
+                                                    </div> 
+                                                    <!--End--> 
+                                                    
+                                                    <!--Chọn điểm lên xe-->
+                                                    <div class="row">
+                                                        <div class="col col-md-12">
+                                                            <div class="LB">
+                                                                <label class="inputLabel" style="font-size: 15px; margin-top: 10px;"><i class="fa fa-map-marker text-primary"></i><strong>&nbsp; &nbsp;Chọn điểm lên xe:</strong><span class="text-primary" style="color:red"> *</span></label>
+                                                                <div id="option" style="width: 100%; padding-top: 10px;">
+                                                                    <label>
+                                                                        <input type="radio" name="trungchuyen" value="tudentram" checked> <strong>Tự đến trạm</strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                                        <input type="radio" name="trungchuyen" value="xetrungchuyen"> <strong>Xe trung chuyển</strong>
+                                                                    </label>
+                                                                </div>
+                                                                <div id="textbox"  style="display: none">
+                                                                    <input class="form-control" name="diachitt" type="text" style="width: 130%;" placeholder="Điền địa chỉ để đón">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                <!--End-->
+                                            
+                                                <!--Chọn điểm xuống xe-->
+                                                <div class="row" style="padding-top: 10px;">
+                                                        <div class="col col-md-12">
+                                                            <div class="LB">
+                                                                <label class="inputLabel" style="font-size: 15px; margin-top: 10px;"><i class="fa fa-map-marker text-primary"></i><strong>&nbsp; &nbsp;Chọn điểm xuống xe:</strong><span class="text-primary" style="color:red"> *</span></label>
+                                                                <div id="option" style="width: 100%; padding-top: 10px;">
+                                                                    <label>
+                                                                        <input type="radio" name="xuongxe" value="xuongtaitram" checked> <strong>Xuống xe tại trạm</strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                                        <input type="radio" name="xuongxe" value="trungchuyendennha"> <strong>Trung chuyển đến nhà</strong>
+                                                                    </label>
+                                                                </div>
+                                                                <div id="textbox2"  style="display: none">
+                                                                    <input class="form-control" name="diachi" type="text" style="width: 100%;" placeholder="Vui lòng điền địa chỉ (số nhà/tên đường)...">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                <!--End-->
+
+                                                <!--HÀNH LÝ-->
+                                                <div class="row">
+                                                    <div class="col col-md-12">    
+                                                        <div class="LB">
+                                                            <label class="inputLabel" style="font-size: 15px; padding-top: 10px;"><i class="fa fa-sticky-note text-primary"></i><strong>&nbsp;&nbsp;Ghi chú:</strong></label>
+                                                            <input class="form-control" name="yeucau" placeholder="Kèm hành lý, trẻ em..." style="width: 180%;"/>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                    <!--end-->
+                                                <!--Button-->
+                                                <div class="row" style="margin-top: 5px;">
+                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 col-ms-12">
+                                                        <a data-slide="prev" class="btn btn-primary btn-flat"><i class="fa fa-arrow-left icon-flat bg-btn-actived"></i> Quay lại</a>
+                                                        <button type="submit" data-slide="next" class="btn btn-success btn-flat" style="margin-top: 10px;"><i class="fa fa-arrow-right icon-flat bg-success"></i>Tiếp tục</button>
+                                                    </div>
+                                                </div>
+                                                <!--End-->
+                                            </div>
+                                            <!--END FORM MỘT CHIỀU-->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </section>
+                            </form>
+                        </div>
+                        <div class="col-md-4" style="border: 2px solid #31708f; border-radius: 25px; margin-top: 15px; margin-left: 10px; width: 440px;">
+                            <form id="myForm" method="post" data-parsley-validate="">
+                                <section id="Search" class="LB XXCN  P20" style="width:105%;">
+                                    <div class="searchRow clearfix">
+                                        <div class="form-a">
+                                            <div class="row">
+                                                <div class="col col-md-12">
+                                                    <label class="inputLabel" style="font-size: 17px; text-align: center;"><strong>CHỌN GHẾ</strong></label>
+                                                    <center><input class="inputLabel" style="font-size: 15px; border: none; text-transform: uppercase;" id="loaixedachon" type="text"></center>
+                                                    <hr>
+                                                </div>
+                                            </div>
+                                        
+                                        <div class="row">
+                                            <div class="col col-md-12">
+                                                <label class="inputLabel" style="font-size: 18px; text-align: center; color: #ef5222;"><strong>SƠ ĐỒ CHỖ NGỒI</strong></label>
+                                                <hr>
+                                            </div>
+                                        </div>
+                                        
+                                        <!--SƠ ĐỒ GHẾ-->
+                                        <div class="row">
+                                        <div class="col-md-6">
+                                            <div id="seat-map">
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="front-indicator" style="float: left; margin-right: 10px;">TÀI XẾ</div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="front-indicator" style="float: right;">CỬA LÊN</div>
+                                                    </div>
+                                                </div>
+                                                <strong><p style="padding-top: 20px; padding-left: 80px;">Tầng dưới</p></strong>
+                                            </div>
+                                
+                                            <div id="seat-map2">
+                                                <strong><p style="padding-left: 80px;">Tầng trên</p></strong>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                        <div class="booking-details">
+                                            <h2>Giá vé</h2>
+                                            <h3> Ghế đã chọn (<span id="counter"></span>):</h3>
+                                            <ul id="selected-seats"></ul>
+                                            Tổng tiền: <b><span id="total">0</span></b>
+                                            <button class="checkout-button">Thanh toán &raquo;</button>
+                                            <div id="legend"></div>
+                                        </div>
+                                        </div>
+                                        </div>
+                                        <!--END-->
+                                    </div>
+                                </div>                                        
+                            </section>
+                        </form>
+                    </div>
+                    <!--THÔNG TIN CHUYẾN ĐI-->
+                    <div class="col-md-4" style="border: 2px solid #31708f; border-radius: 25px; margin-top: 15px; float: right; width: 30%; margin-right: -30px;">
+                        <div class="form-a"> 
+                            <div id="step-info">
+                                <p class="text-center text-primary text-uppercase" style="color: #ef5222; font-size: 15px; font-weight: 550; padding-top: 10px;">THÔNG TIN CHUYẾN ĐI</p>
+                                <table class="time-map table">                                                          
+                                <tbody>
+                                <tr>
+                                    <td>
+                                        <p>
+                                            <i class="fa fa-bus text-primary"></i> <strong>Xuất phát</strong>
+                                        </p>
+                                        <span style="margin-left:15px;"><?php echo $dep_date;?></span>
+                                        <br>
+                                        <p style="color: #ff4500; margin-left:15px; font-size: 18px; font-weight: 450;">
+                                        <?php echo $ten_noidi;?><br>
+                                        </p>
+                                    </td>
+                                    <td>
+                                        <input type="text" id="giodachon" class="form-control" style="width: 90px; text-align: center;">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <h5>
+                                            <i class="fa fa-clock-o"></i>
+                                            <strong>Thời gian di chuyển:</strong>
+                                        </h5>
+                                    </td>
+                                    <td>
+                                        <?php
+                                            $get_time = mysqli_query($conn, "SELECT DATE_FORMAT(thoigiandi, '%h:%i') as thoigiandi FROM lich_chay WHERE fromLoc='$ten_noidi'and toLoc='$ten_noiden'");
+                                            $execute = mysqli_fetch_assoc($get_time);
+                                            $thoigiandi = $execute['thoigiandi'];
+                                        ?>
+                                        <input type="text" name="thoigiandi" class="form-control" style="width: 90px; text-align: center;" value=<?=$thoigiandi?>>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <h5>
+                                            <i class="fa fa-bus text-primary"></i> <strong>Đến lúc</strong>
+                                        </h5>
+                                        <span style="margin-left: 15px;"><?php echo $dep_date;?></span><br>
+                                        <p style="margin-left: 15px ;font-size: 18px; font-weight: 450; color:#ff4500;">
+                                            <?php echo $ten_noiden;?><br>
+                                        </p>
+                                    </td>
+                                    <td>
+                                        <input type="text" name="thoigiandi" class="form-control" style="width: 90px; text-align: center;" value=<?=$thoigiandi?>>
+                                    </td>
+                    
+                                    <td>
+                                    
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <p style="margin-top: -10px;">
+                            <h5><strong>Miễn phí &nbsp;</strong></h5>
+                            <span style="padding-left: 100px;">
+                                <span class="water sprite" title="Nước uống"></span>
+                            </span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>   
+</div>
+
+        <div id="tab-2" class="tab-content" data-id="paytm">            
+            <div class="tb_route_inner_txt" ng-show="tripDetails.length!='0'" ng-repeat="trips in tripDetails"> 
+                
+            </div>   
+        </div>
+        <div id="tab-3" class="tab-content" data-id="paytm">
+            <div class="tb_route_inner_txt" ng-show="tripDetails.length!='0'" ng-repeat="trips in tripDetails"> 
+                
+            </div>
+        </div>
+        <div id="tab-4c" class="tab-content" data-id="paytm">
+            <div class="tb_route_inner_txt" ng-show="tripDetails.length!='0'" ng-repeat="trips in tripDetails"> 
+                
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(function() {
+        $('input[name="trungchuyen"]').on('click', function() {
+            if ($(this).val() == 'xetrungchuyen') {
+                $('#textbox').show();
+            }
+            else {
+                $('#textbox').hide();
+            }
+        });
+    });
+</script>
+
+<script>
+    $(function() {
+        $('input[name="xuongxe"]').on('click', function() {
+            if ($(this).val() == 'trungchuyendennha') {
+                $('#textbox2').show();
+            }
+            else {
+                $('#textbox2').hide();
+            }
+        });
+    });
+</script>
+
+<!--lấy giá trị đã chọn từ select box GIỜ DI CHUYỂN-->
+<script>
+    $("#gio").on("change",function(){
+        //Getting Value
+        var selValue = $("#gio :selected").text();
+        //Setting Value
+        $("#giodachon").val(selValue);
+    });
+</script>
+
+<!--lấy giá trị đã chọn từ select box LOẠI GHẾ-->
+<script>
+    $("#loaixe").on("change",function(){
+        //Getting Value
+        var selValue = $("#loaixe :selected").text();
+        //Setting Value
+        $("#loaixedachon").val(selValue);
+    });
+</script>  
+<script src="http://code.jquery.com/jquery-1.12.4.min.js"></script> 
+<script src="assets/js/jquery.seat-charts.js"></script> 
+<script>
+			var firstSeatLabel = 1;
+            var giave = document.getElementById("tien").value; 
+			$(document).ready(function() {
+				var $cart = $('#selected-seats'),
+                    $giave = $('#tien'),
+					$counter = $('#counter'),
+					$total = $('#total'),
+					sc = $('#seat-map').seatCharts({
+					map: [
+						'fff',
+						'fff',
+						'eee',
+						'eee',
+						'e__e',
+						'eee',
+					],
+					seats: {
+						f: {
+							giave,
+							classes : 'first-class', //your custom CSS class
+							category: 'First Class'
+						},
+						e: {
+							giave,
+							classes : 'economy-class', //your custom CSS class
+							category: 'Economy Class'
+						}					
+					
+					},
+					naming : {
+						top : false,
+						getLabel : function (character, row, column) {
+							return firstSeatLabel++;
+						},
+					},
+					legend : {
+						node : $('#legend'),
+					    items : [
+							[ 'e', 'available',   'Ghế trống'],
+                            ['','',''],
+							[ 'f', 'unavailable', 'Ghế có khách'],
+					    ]					
+					},
+					click: function () {
+						if (this.status() == 'available') {
+							//let's create a new <li> which we'll add to the cart items
+							$('<li>'+'Vị trí ghế: '+this.settings.label+': <b>'+this.data().$giave+'</b> <a href="#" class="cancel-cart-item">[Hủy]</a></li>')
+								.attr('id', 'cart-item-'+this.settings.id)
+								.data('seatId', this.settings.id)
+								.appendTo($cart);
+							
+							/*
+							 * Lets update the counter and total
+							 *
+							 * .find function will not find the current seat, because it will change its stauts only after return
+							 * 'selected'. This is why we have to add 1 to the length and the current seat price to the total.
+							 */
+							$counter.text(sc.find('selected').length+1);
+							$total.text(recalculateTotal(sc)+this.data().$giave);
+							
+							return 'selected';
+						} else if (this.status() == 'selected') {
+							//update the counter
+							$counter.text(sc.find('selected').length-1);
+							//and total
+							$total.text(recalculateTotal(sc)-this.data().$giave);
+						
+							//remove the item from our cart
+							$('#cart-item-'+this.settings.id).remove();
+						
+							//seat has been vacated
+							return 'available';
+						} else if (this.status() == 'unavailable') {
+							//seat has been already booked
+							return 'unavailable';
+						} else {
+							return this.style();
+						}
+					}
+				});
+
+				//this will handle "[cancel]" link clicks
+				$('#selected-seats').on('click', '.cancel-cart-item', function () {
+					//let's just trigger Click event on the appropriate seat, so we don't have to repeat the logic here
+					sc.get($(this).parents('li:first').data('seatId')).click();
+				});
+
+				//let's pretend some seats have already been booked
+				sc.get(['1_2', '4_1', '7_1', '7_2']).status('unavailable');
+		
+		});
+
+		function recalculateTotal(sc) {
+			var total = 0;
+		
+			//basically find every selected seat and sum its price
+			sc.find('selected').each(function () {
+				total += this.data().$giave;
+			});
+			
+			return total;
+		}
+		
+        </script>
+
+<script>
+			var firstSeatLabel = 1;
+            var giave = do
+		
+			$(document).ready(function() {
+				var $cart = $('#selected-seats'),
+					$counter = $('#counter'),
+					$total = $('#total'),
+					sc = $('#seat-map2').seatCharts({
+					map: [
+						'fff',
+						'fff',
+						'eee',
+						'eee',
+						'e__e',
+						'eee',
+					],
+					seats: {
+						f: {
+							price   : <?php echo $fare?>,
+							classes : 'first-class', //your custom CSS class
+							category: 'First Class'
+						},
+						e: {
+							price   : <?php echo $fare?>,
+							classes : 'economy-class', //your custom CSS class
+							category: 'Economy Class'
+						}					
+					
+					},
+					naming : {
+						top : false,
+						getLabel : function (character, row, column) {
+							return firstSeatLabel++;
+						},
+					},
+					legend : {
+						node : $('#legend'),
+					    items : [
+
+					    ]					
+					},
+					click: function () {
+						if (this.status() == 'available') {
+							//let's create a new <li> which we'll add to the cart items
+							$('<li>'+this.data().category+' Seat # '+this.settings.label+': <b>$'+this.data().price+'</b> <a href="#" class="cancel-cart-item">[cancel]</a></li>')
+								.attr('id', 'cart-item-'+this.settings.id)
+								.data('seatId', this.settings.id)
+								.appendTo($cart);
+							
+							/*
+							 * Lets update the counter and total
+							 *
+							 * .find function will not find the current seat, because it will change its stauts only after return
+							 * 'selected'. This is why we have to add 1 to the length and the current seat price to the total.
+							 */
+							$counter.text(sc.find('selected').length+1);
+							$total.text(recalculateTotal(sc)+this.data().price);
+							
+							return 'selected';
+						} else if (this.status() == 'selected') {
+							//update the counter
+							$counter.text(sc.find('selected').length-1);
+							//and total
+							$total.text(recalculateTotal(sc)-this.data().price);
+						
+							//remove the item from our cart
+							$('#cart-item-'+this.settings.id).remove();
+						
+							//seat has been vacated
+							return 'available';
+						} else if (this.status() == 'unavailable') {
+							//seat has been already booked
+							return 'unavailable';
+						} else {
+							return this.style();
+						}
+					}
+				});
+
+				//this will handle "[cancel]" link clicks
+				$('#selected-seats').on('click', '.cancel-cart-item', function () {
+					//let's just trigger Click event on the appropriate seat, so we don't have to repeat the logic here
+					sc.get($(this).parents('li:first').data('seatId')).click();
+				});
+
+				//let's pretend some seats have already been booked
+				sc.get(['1_2', '4_1', '7_1', '7_2']).status('unavailable');
+		
+		});
+
+		function recalculateTotal(sc) {
+			var total = 0;
+		
+			//basically find every selected seat and sum its price
+			sc.find('selected').each(function () {
+				total += this.data().price;
+			});
+			
+			return total;
+		}
+		
+        </script>
+
+        <script type="text/javascript">
+            var _gaq = _gaq || [];
+            _gaq.push(['_setAccount', 'UA-36251023-1']);
+            _gaq.push(['_setDomainName', 'jqueryscript.net']);
+            _gaq.push(['_trackPageview']);
+
+            (function() {
+                var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+                ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+                var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+            })();
+        </script>
+
+<?php
+    include("includes/script.php");
+    include("includes/footer.php");
+?>
+

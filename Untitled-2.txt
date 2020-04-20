@@ -1,0 +1,19 @@
+INSERT INTO `point_pickup`(`pid`, `id_noidi`, `name_point`) VALUES ('','4','VP Cao Lãnh: 17-19 Võ Thị Sáu, P.2, TP.Cao Lãnh (TERMINAL BUS STATION)');
+INSERT INTO `point_pickup`(`pid`, `id_noidi`, `name_point`) VALUES ('','5','VP Cà Mau, QL 1A, Lý Thường Kiệt, P.6 , TP.Cà Mau (TERMINAL BUS STATION)');
+INSERT INTO `point_pickup`(`pid`, `id_noidi`, `name_point`) VALUES ('','6','VP Bến xe Trung Tâm Cần Thơ: P.Hưng Thạnh , Q. Cái Răng , TP.Cần Thơ (TERMINAL BUS STATION)');
+INSERT INTO `point_pickup`(`pid`, `id_noidi`, `name_point`) VALUES ('','7','VP Vị Thanh, Trần Hưng Đạo nối dài , KV3 , Vị Thanh Hậu Giang (TERMINAL BUS STATION)');
+INSERT INTO `point_pickup`(`pid`, `id_noidi`, `name_point`) VALUES ('','8','12 Mai Thị Hồng Hạnh (TERMINAL BUS STATION)');
+INSERT INTO `point_pickup`(`pid`, `id_noidi`, `name_point`) VALUES ('','9','VP Đà Lạt, 01 Tô Hiến Thành , P.3 , TP.Đà Lạt (TERMINAL BUS STATION)');
+INSERT INTO `point_pickup`(`pid`, `id_noidi`, `name_point`) VALUES ('','10','12 Mai Thị Hồng Hạnh (TERMINAL BUS STATION)');
+INSERT INTO `point_pickup`(`pid`, `id_noidi`, `name_point`) VALUES ('','11','VP BX Miền Tây: 395 Kinh Dương Vương , P.An Lạc , Q.Bình Tân , TP.HCM (TERMINAL BUS STATION)');
+INSERT INTO `point_pickup`(`pid`, `id_noidi`, `name_point`) VALUES ('','12','12 Mai Thị Hồng Hạnh (TERMINAL BUS STATION)');
+INSERT INTO `point_pickup`(`pid`, `id_noidi`, `name_point`) VALUES ('','13','12 Mai Thị Hồng Hạnh (TERMINAL BUS STATION)');
+INSERT INTO `point_pickup`(`pid`, `id_noidi`, `name_point`) VALUES ('','14','12 Mai Thị Hồng Hạnh (TERMINAL BUS STATION)');
+
+<?php
+    include ("includes/connect.php");
+    $sql3=mysqli_query($conn, "SELECT DATE_FORMAT(dep_time, '%h:%i %p') as dep_time FROM route WHERE fromLoc='$ten_noidi' and toLoc ='$ten_noiden'");
+    while ($row=mysqli_fetch_array($sql)):;    
+?>
+    <option value= "<?php echo $row['rid'];?>"><?php echo $row['dep_time'];?></option>
+    <?php endwhile; ?>
